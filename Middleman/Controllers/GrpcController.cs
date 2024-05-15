@@ -17,7 +17,7 @@ public class GrpcController : ControllerBase
     }
 
     [HttpGet("send-receive")]
-    async public Task<IActionResult> SendReceive()
+    async public Task<IActionResult> SendReceiveOverHttps()
     {
         using var channel = GrpcChannel.ForAddress("https://localhost:5002/grpc");
         var client = new Greeter.GreeterClient(channel);

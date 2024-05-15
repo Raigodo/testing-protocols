@@ -10,6 +10,19 @@ public class HttpController : ControllerBase
 {
     private IWebHostEnvironment _env;
 
+    static HttpClient http20Client = new HttpClient()
+    {
+        BaseAddress = new Uri($"https://localhost:5002/http"),
+        DefaultRequestVersion = HttpVersion.Version20,
+        DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact,
+    };
+    static HttpClient http30Client = new HttpClient()
+    {
+        BaseAddress = new Uri($"https://localhost:5002/http"),
+        DefaultRequestVersion = HttpVersion.Version30,
+        DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact,
+    };
+
     public HttpController(IWebHostEnvironment env)
     {
         _env = env;
@@ -19,7 +32,7 @@ public class HttpController : ControllerBase
     [HttpGet("v20/send-receive")]
     async public Task<IActionResult> SendReceiveOverHttp20()
     {
-        await MakeHttpCall(Payload.CurrentPayload, HttpVersion.Version20);
+        await MakeHttpCall(Payload.CurrentPayload, http20Client);
         return Ok($"Done, payload: {Payload.CurrentPayload.Length} bytes");
     }
 
@@ -29,21 +42,16 @@ public class HttpController : ControllerBase
     [HttpGet("v30/send-receive")]
     async public Task<IActionResult> SendReceiveOverHttp30()
     {
-        await MakeHttpCall(Payload.CurrentPayload, HttpVersion.Version30);
+        await MakeHttpCall(Payload.CurrentPayload, http30Client);
         return Ok($"Done, payload: {Payload.CurrentPayload.Length} bytes");
     }
 
 
-    async private Task<string> MakeHttpCall(string payload, Version version)
+    async private Task<string> MakeHttpCall(string payload, HttpClient client)
     {
-        using var client = new HttpClient();
-
         using var request = new HttpRequestMessage
         {
-            RequestUri = new Uri("https://localhost:5002/http"),
-            Version = version,
             Method = HttpMethod.Post,
-            VersionPolicy = HttpVersionPolicy.RequestVersionExact,
             Content = JsonContent.Create(payload),
         };
 

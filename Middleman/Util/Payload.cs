@@ -8,7 +8,7 @@ public static class Payload
 
     async public static Task<string> PreparePayload(string fileName)
     {
-        string filePath = Path.Combine("G:\\VS\\repos\\protocol-testing\\GatheringMetrics\\payloads\\", $"{fileName}.txt");
+        string filePath = Path.Combine(".\\payloads\\", $"{fileName}.txt");
 
         string fileContent = await File.ReadAllTextAsync(filePath);
 

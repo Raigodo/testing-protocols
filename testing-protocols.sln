@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Middleman", "Middleman\Midd
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microservice", "Microservice\Microservice.csproj", "{1097A203-3639-4004-B224-2CF43AF5AFBE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatheringMetrics", "GatheringMetrics\GatheringMetrics.csproj", "{B608E16E-C951-4BAE-AA8A-B4822A8DFA7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1097A203-3639-4004-B224-2CF43AF5AFBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1097A203-3639-4004-B224-2CF43AF5AFBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1097A203-3639-4004-B224-2CF43AF5AFBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B608E16E-C951-4BAE-AA8A-B4822A8DFA7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B608E16E-C951-4BAE-AA8A-B4822A8DFA7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B608E16E-C951-4BAE-AA8A-B4822A8DFA7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B608E16E-C951-4BAE-AA8A-B4822A8DFA7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

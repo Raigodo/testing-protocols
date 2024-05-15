@@ -17,14 +17,14 @@ public class WebSocketController : ControllerBase
         _env = env;
     }
 
-    [HttpGet("connect")]
+    [HttpPost("connect")]
     async public Task<IActionResult> Connect()
     {
         await _ws.ConnectAsync(new Uri("wss://localhost:5002/ws"), CancellationToken.None);
         return Ok("success");
     }
 
-    [HttpGet("disconnect")]
+    [HttpPost("disconnect")]
     async public Task<IActionResult> Disconnect()
     {
         await _ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, default, CancellationToken.None);

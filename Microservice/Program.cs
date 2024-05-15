@@ -22,14 +22,11 @@ builder.WebHost
 
 builder.Services.AddGrpc();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(s => s.DisplayRequestDuration());
 
 app.UseWebSockets();
 
@@ -42,7 +39,7 @@ app.MapPost("/grpc", (HelloRequest request) => request.Name);
 
 app.MapPost("/http", async (HttpContext http, [FromBody] string payload) =>
 {
-    Console.WriteLine(payload);
+    //Console.WriteLine(payload);
     await http.Response.WriteAsync($"used {http.Request.Protocol} -> {payload}");
 });
 

@@ -57,8 +57,9 @@ app.MapGet("/ws", async (HttpContext context, CancellationToken cancellationToke
         //    DangerousEnableCompression = false,
         //};
         using var ws = await context.WebSockets.AcceptWebSocketAsync();
-
-        await HandleWebSocketAsync(ws);
+        string queryBufferSize = $"{context.Request.Query["bs"]}";
+        var bufferSize = queryBufferSize is null ? 1024 : int.Parse(queryBufferSize);
+        await HandleWebSocketAsync(ws, bufferSize);
     }
     else
     {
@@ -69,9 +70,9 @@ app.MapGet("/ws", async (HttpContext context, CancellationToken cancellationToke
 app.Run();
 
 
-async Task HandleWebSocketAsync(WebSocket ws)
+async Task HandleWebSocketAsync(WebSocket ws, int bufferSize)
 {
-    var buffer = new byte[1024 * 4];
+    var buffer = new byte[bufferSize];
     var receiveSegment = new ArraySegment<byte>(buffer);
 
     while (ws.State == WebSocketState.Open)

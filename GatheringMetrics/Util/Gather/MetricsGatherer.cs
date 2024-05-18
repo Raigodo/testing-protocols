@@ -47,36 +47,15 @@ public class MetricsGatherer(ICaller caller) : IDisposable
 
     public async Task<Dictionary<Protocols, double>> GatherThroughput()
     {
-        int waitSeconds = 1;
+        int waitSeconds = 10;
         return new()
         {
-            { Protocols.HTTP20, await CountCalls(caller.MakeCallOverHttp20Async, waitSeconds, targetProtocolName: "http2")},
-            { Protocols.HTTP30, await CountCalls(caller.MakeCallOverHttp30Async, waitSeconds, targetProtocolName: "http3")},
-            { Protocols.GRPC,   await CountCalls(caller.MakeCallOverGrpcAsync,   waitSeconds, targetProtocolName: "grpc")},
-            { Protocols.WS,     await CountCalls(caller.MakeCallOverWsAsync,     waitSeconds, targetProtocolName: "ws")},
+            { Protocols.HTTP20, await CallAnalyzer.CountCalls(caller.MakeCallOverHttp20Async, waitSeconds, targetProtocolName: "http2")},
+            { Protocols.HTTP30, await CallAnalyzer.CountCalls(caller.MakeCallOverHttp30Async, waitSeconds, targetProtocolName: "http3")},
+            { Protocols.GRPC,   await CallAnalyzer.CountCalls(caller.MakeCallOverGrpcAsync,   waitSeconds, targetProtocolName: "grpc")},
+            { Protocols.WS,     await CallAnalyzer.CountCalls(caller.MakeCallOverWsAsync,     waitSeconds, targetProtocolName: "ws")},
         };
     }
 
-    private async Task<int> CountCalls(Func<Task> call, int waitSeconds = 10, string targetProtocolName = "Not specified")
-    {
-        Console.WriteLine($"Starting counting calls for: {targetProtocolName}");
-        var cts = new CancellationTokenSource();
-        var count = 0;
-        var job = Task.Run(async () => count = await CallAnalyzer.GatherThroughput(call, cts.Token));
-
-        for (var i = 0; i< waitSeconds; i++)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            Console.Write(".");
-        }
-        Console.Write("\n");
-
-        cts.Cancel();
-
-        Console.WriteLine($"Finishing counting calls for: {targetProtocolName}");
-
-        await job;
-
-        return count;
-    }
+    
 }

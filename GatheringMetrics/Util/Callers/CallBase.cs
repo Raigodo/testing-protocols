@@ -16,7 +16,7 @@ public abstract class CallBase
         var ws = new ClientWebSocket();
         try
         {
-            await ws.ConnectAsync(new Uri($"wss://localhost:{PORT}/ws"), CancellationToken.None);
+            await ws.ConnectAsync(new Uri($"wss://localhost:{PORT}/ws?bs={Payload.CurrentPayload.Length}"), CancellationToken.None);
         }
         finally { _semaphore.Release(); }
         return ws;
@@ -68,7 +68,7 @@ public abstract class CallBase
 
             await ws.SendAsync(requestSegment, WebSocketMessageType.Text, true, CancellationToken.None);
 
-            var buffer = new byte[1024];
+            var buffer = new byte[Payload.CurrentPayload.Length];
             var responseSegment = new ArraySegment<byte>(buffer);
             var response = await ws.ReceiveAsync(responseSegment, CancellationToken.None);
             message = Encoding.UTF8.GetString(buffer, 0, response.Count);

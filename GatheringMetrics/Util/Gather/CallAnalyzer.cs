@@ -117,24 +117,47 @@ public static class CallAnalyzer
         }
     }
 
-    public static async Task<int> GatherThroughput(
+    public static async Task<int> CountCalls(Func<Task> call, int waitSeconds = 10, string targetProtocolName = "Not specified")
+    {
+        Console.WriteLine($"Starting counting calls for: {targetProtocolName}");
+        var cts = new CancellationTokenSource();
+        var count = 0;
+        var job = Task.Run(async () => count = await CallAnalyzer.GatherThroughput(call, cts.Token));
+
+        for (var i = 0; i < waitSeconds; i++)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Console.Write(".");
+        }
+        Console.Write("\n");
+
+        cts.Cancel();
+
+        Console.WriteLine($"Finishing counting calls for: {targetProtocolName}");
+
+        await job;
+
+        return count;
+    }
+
+    private static async Task<int> GatherThroughput(
         Func<Task> caller,
         CancellationToken cancellationToken,
         int agentCount = 1)
     {
-        return await LaunchThroughputAgent(caller, cancellationToken);
-        //int i = 0;
-        //var agents = new Task<int>[agentCount];
-        //for (i = 0; i < agentCount; i++)
-        //    agents[i] = Task.Run(() => LaunchThroughputAgent(caller, cancellationToken));
+        //return await LaunchThroughputAgent(caller, cancellationToken);
+        int i = 0;
+        var agents = new Task<int>[agentCount];
+        for (i = 0; i < agentCount; i++)
+            agents[i] = Task.Run(() => LaunchThroughputAgent(caller, cancellationToken));
 
-        //var tcs = new TaskCompletionSource();
-        //cancellationToken.Register(tcs.SetResult);
+        var tcs = new TaskCompletionSource();
+        cancellationToken.Register(tcs.SetResult);
 
-        //await tcs.Task;
-        //var callCounts = await Task.WhenAll(agents);
+        await tcs.Task;
+        var callCounts = await Task.WhenAll(agents);
 
-        //return callCounts.Sum();
+        return callCounts.Sum();
     }
 
     private static async Task<int> LaunchThroughputAgent(Func<Task> caller, CancellationToken cancellationToken)
@@ -145,8 +168,13 @@ public static class CallAnalyzer
             await caller();
             i++;
             if (cancellationToken.IsCancellationRequested)
+            {
+                Console.WriteLine("Trying to stop while loop");
                 break;
+            }
         }
         return i;
     }
+
+   
 }

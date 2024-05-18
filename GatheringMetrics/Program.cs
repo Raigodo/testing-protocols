@@ -20,7 +20,7 @@ while (cmd != "X")
     switch (cmd)
     {
         case "help":
-            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\ntput - gather throughput\np - set payload to use");
+            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\np - set payload to use");
             break;
         case "mem":
             await GatherMemoryMetrics();
@@ -55,25 +55,25 @@ Console.ReadLine();
 async Task GatherMemoryMetrics()
 {
     using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
-    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherMemoryUsageAsync(iterations));
+    DisplayResults("Gathering Memory Usage...", await controlledGatherer.GatherMemoryUsageAsync(iterations));
 }
 
 async Task GatherTimeMetrics()
 {
     using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
-    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherWaitTimeAsync(iterations));
+    DisplayResults("Gathering Request Time...", await controlledGatherer.GatherWaitTimeAsync(iterations));
 }
 
 async Task GatherCpuLoadMetrics()
 {
     using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
-    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherCpuLoad(iterations));
+    DisplayResults("Gathering CPU Load...", await controlledGatherer.GatherCpuLoad(iterations));
 }
 
 async Task GatherThroughput()
 {
     using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
-    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherThroughput());
+    DisplayResults("Gathering Throughput...", await controlledGatherer.GatherThroughput());
 }
 
 void DisplayResults(string title, Dictionary<Protocols, double> results)

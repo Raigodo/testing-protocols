@@ -25,7 +25,7 @@ public class WebSocketController : ControllerBase
                 return BadRequest("Already connected");
 
             _ws = new();
-            await _ws!.ConnectAsync(new Uri($"wss://localhost:5002/ws"), CancellationToken.None);
+            await _ws!.ConnectAsync(new Uri($"wss://localhost:5002/ws?bs={Payload.CurrentPayload.Length}"), CancellationToken.None);
             Console.WriteLine("WS connection created");
 
         }
@@ -63,7 +63,7 @@ public class WebSocketController : ControllerBase
 
             await _ws.SendAsync(requestSegment, WebSocketMessageType.Text, true, CancellationToken.None);
 
-            var buffer = new byte[1024];
+            var buffer = new byte[Payload.CurrentPayload.Length];
             var responseSegment = new ArraySegment<byte>(buffer);
             var response = await _ws.ReceiveAsync(responseSegment, CancellationToken.None);
             message = Encoding.UTF8.GetString(buffer, 0, response.Count);

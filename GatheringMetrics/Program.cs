@@ -20,7 +20,7 @@ while (cmd != "X")
     switch (cmd)
     {
         case "help":
-            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\np - set payload to use");
+            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\ntput - gather throughput\np - set payload to use");
             break;
         case "mem":
             await GatherMemoryMetrics();

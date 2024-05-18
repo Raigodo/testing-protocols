@@ -4,7 +4,7 @@ public static class Payload
 {
     public static string CurrentPayload = string.Empty;
 
-    public static readonly string[] SupportedFileNames = new[] { "1kb", "10kb", "50kb", "100kb", "500kb", "1mb" };
+    public static readonly string[] SupportedFileNames = new[] { "0kb", "1kb", "10kb", "50kb", "100kb", "500kb", "1mb" };
 
     async public static Task<string> PreparePayload(string fileName)
     {

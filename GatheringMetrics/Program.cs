@@ -1,57 +1,86 @@
 ﻿using GatheringMetrics.Util;
 using GatheringMetrics.Util.Callers;
+using GatheringMetrics.Util.Enums;
 using GatheringMetrics.Util.Gather;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Net.Http.Json;
 
-Console.Write("Input anything to proceed: ");
-Console.ReadLine();
-
 await Payload.PreparePayload("1kb");
 
-var iterations = 10;
+var iterations = 20;
+var cmd = string.Empty;
 
-while (true)
+while (cmd != "X")
 {
-    using var oneshotGatherer = new MetricsGatherer(new OneshotCall());
+    Console.Write("cmd: ");
+    cmd = Console.ReadLine();
+    Console.WriteLine();
 
-    Console.WriteLine("\nGathering metrics for ONESHOT...");
+    switch (cmd)
+    {
+        case "help":
+            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\np - set payload to use");
+            break;
+        case "mem":
+            await GatherMemoryMetrics();
+            break;
+        case "time":
+            await GatherTimeMetrics();
+            break;
+        case "cpu":
+            await GatherCpuLoadMetrics();
+            break;
+        case "tput":
+            await GatherThroughput(); 
+            break;
+        case "p":
+            Console.WriteLine("c - show current payload size [B]\n or any payload size: 1kb, 10kb, 50kb, 100kb, 500kb, 1mb\n");
+            Console.Write("p / cmd:");
+            var input = $"{Console.ReadLine()}";
+            if (Payload.SupportedFileNames.Contains(input))
+                await Payload.PreparePayload(input);
+            else if (input == "c")
+                Console.WriteLine($"current payload: {Payload.CurrentPayload.Length} bytes");
+            break;
+    }
 
-    await oneshotGatherer.GatherMemoryUsageAsync(iterations);
-    await oneshotGatherer.GatherWaitTimeAsync(iterations);
-
-
-    using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
-
-    Console.WriteLine("\nGathering metrics for CONTROLLED...");
-
-    await controlledGatherer.GatherMemoryUsageAsync(iterations);
-    await controlledGatherer.GatherWaitTimeAsync(iterations);
-
-
-    Console.Write("\nInput 'X' symbol to end\n"
-        + "or any one from folloving to use as payload: 1kb, 10kb, 50kb, 100kb, 500kb, 1mb\n"
-        + "or any other value to repeat\n->");
-
-    string input = Console.ReadLine() ?? string.Empty;
-    if (Payload.SupportedFileNames.Contains(input))
-        await Payload.PreparePayload(input);
-    else if (input.ToUpper() == "X")
-        break;
-
-    Console.WriteLine(string.Empty);
+    Console.WriteLine();
 }
 
 Console.Write("Input anything to Exit: ");
 Console.ReadLine();
 
-async Task<string> PerformHttpCallAsync(HttpRequestMessage request, HttpClient client)
+
+async Task GatherMemoryMetrics()
 {
-    using HttpResponseMessage response = await client.SendAsync(request);
-    return await response.Content.ReadAsStringAsync();
+    using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
+    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherMemoryUsageAsync(iterations));
 }
-async Task<string> _PerformHttpCallAsync(HttpRequestMessage request)
+
+async Task GatherTimeMetrics()
 {
-    using var client = new HttpClient();
-    return await PerformHttpCallAsync(request, client);
+    using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
+    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherWaitTimeAsync(iterations));
+}
+
+async Task GatherCpuLoadMetrics()
+{
+    using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
+    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherCpuLoad(iterations));
+}
+
+async Task GatherThroughput()
+{
+    using var controlledGatherer = new MetricsGatherer(await ControlledCall.Create());
+    DisplayResults("Gathering metrics for CONTROLLED...", await controlledGatherer.GatherThroughput());
+}
+
+void DisplayResults(string title, Dictionary<Protocols, double> results)
+{
+    Console.WriteLine($"\n{title}");
+    Console.WriteLine($"HTTP/2:        {results[Protocols.HTTP20]}");
+    Console.WriteLine($"HTTP/3:        {results[Protocols.HTTP30]}");
+    Console.WriteLine($"WS:            {results[Protocols.WS]}");
+    Console.WriteLine($"gRPC:          {results[Protocols.GRPC]}");
 }

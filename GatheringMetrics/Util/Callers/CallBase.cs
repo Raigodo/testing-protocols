@@ -9,15 +9,30 @@ namespace GatheringMetrics.Util;
 public abstract class CallBase
 {
     private readonly int PORT = 5002;
+    private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
     protected async Task<ClientWebSocket> MakeWsClientAsync()
     {
+        await _semaphore.WaitAsync();
         var ws = new ClientWebSocket();
-        await ws.ConnectAsync(new Uri($"wss://localhost:{PORT}/ws"), CancellationToken.None);
+        try
+        {
+            await ws.ConnectAsync(new Uri($"wss://localhost:{PORT}/ws"), CancellationToken.None);
+        }
+        finally { _semaphore.Release(); }
         return ws;
     }
     protected async Task DisposeWsClientAsync(ClientWebSocket ws)
     {
-        await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, default, CancellationToken.None);
+        await _semaphore.WaitAsync();
+        if (ws.State != WebSocketState.Open)
+            return;
+
+        try
+        {
+            await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, default, CancellationToken.None);
+            ws.Dispose();
+        }
+        finally { _semaphore.Release(); }
         ws.Dispose();
     }
 
@@ -40,15 +55,25 @@ public abstract class CallBase
 
 
 
+
+
     protected async Task TestCallOverWsAsync(ClientWebSocket ws)
     {
-        var message = Payload.CurrentPayload;
-        var bytes = Encoding.UTF8.GetBytes(message);
-        var arraySegment = new ArraySegment<byte>(bytes);
-        await ws.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+        await _semaphore.WaitAsync();
+        try
+        {
+            var message = Payload.CurrentPayload;
+            var bytes = Encoding.UTF8.GetBytes(message);
+            var requestSegment = new ArraySegment<byte>(bytes);
 
-        var buffer = new byte[1024];
-        await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            await ws.SendAsync(requestSegment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+            var buffer = new byte[1024];
+            var responseSegment = new ArraySegment<byte>(buffer);
+            var response = await ws.ReceiveAsync(responseSegment, CancellationToken.None);
+            message = Encoding.UTF8.GetString(buffer, 0, response.Count);
+        }
+        finally { _semaphore.Release(); }
     }
 
     protected async Task TestCallOverHttp20Async(HttpClient client)

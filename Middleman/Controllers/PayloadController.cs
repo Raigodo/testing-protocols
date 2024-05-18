@@ -18,7 +18,7 @@ public class PayloadController : ControllerBase
     [HttpGet("current")]
     public IActionResult SetUsedPayloadFromFile()
     {
-        return Ok(Payload.CurrentPayload);
+        return Ok(Payload.CurrentPayload.Length);
     }
 
 

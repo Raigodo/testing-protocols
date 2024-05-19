@@ -1,15 +1,13 @@
-﻿using GatheringMetrics.Util.Callers;
-using GatheringMetrics.Util.Enums;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using GatheringMetrics.Callers;
+using GatheringMetrics.Values.Enums;
 
-namespace GatheringMetrics.Util.Gather;
+namespace GatheringMetrics.Gather;
 
 public class MetricsGatherer(ICaller caller) : IDisposable
 {
     public void Dispose()
     {
-        caller.EnsureCleanedUp();
+        caller.Dispose();
     }
 
     public async Task<Dictionary<Protocols, double>> GatherMemoryUsageAsync(int iterations)
@@ -57,5 +55,5 @@ public class MetricsGatherer(ICaller caller) : IDisposable
         };
     }
 
-    
+
 }

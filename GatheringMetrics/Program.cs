@@ -1,10 +1,7 @@
-﻿using GatheringMetrics.Util;
-using GatheringMetrics.Util.Callers;
-using GatheringMetrics.Util.Enums;
-using GatheringMetrics.Util.Gather;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Net;
-using System.Net.Http.Json;
+﻿using GatheringMetrics.Callers;
+using GatheringMetrics.Gather;
+using GatheringMetrics.Util;
+using GatheringMetrics.Values.Enums;
 
 await Payload.PreparePayload("1kb");
 
@@ -19,9 +16,6 @@ while (cmd != "X")
 
     switch (cmd)
     {
-        case "help":
-            Console.WriteLine("commands to use:\nmem - gather memory usage\ntime - gather response time\ncpu - gather cpu load\np - set payload to use");
-            break;
         case "mem":
             await GatherMemoryMetrics();
             break;
@@ -32,10 +26,10 @@ while (cmd != "X")
             await GatherCpuLoadMetrics();
             break;
         case "tput":
-            await GatherThroughput(); 
+            await GatherThroughput();
             break;
         case "p":
-            Console.WriteLine("c - show current payload size [B]\n or any payload size: 1kb, 10kb, 50kb, 100kb, 500kb, 1mb\n");
+            Console.WriteLine("c - show current payload size [B]\n or any payload size: 0kb, 1kb, 10kb, 50kb, 100kb, 500kb, 1mb\n");
             Console.Write("p / cmd:");
             var input = $"{Console.ReadLine()}";
             if (Payload.SupportedFileNames.Contains(input))

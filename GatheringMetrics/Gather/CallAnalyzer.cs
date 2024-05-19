@@ -1,10 +1,7 @@
-﻿using GatheringMetrics.Util.Callers;
-using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
-namespace GatheringMetrics.Util.Gather;
+namespace GatheringMetrics.Gather;
 
 public static class CallAnalyzer
 {
@@ -63,7 +60,7 @@ public static class CallAnalyzer
         return Math.Round(result / resultCount, 1);
     }
 
-    private static async Task<double> GatherCpuUsage(Func<Task> call, int iterations = 1)
+    private static async Task<double> GatherCpuUsage(Func<Task> call, int callCount = 1)
     {
         //used to stop cpu logging process
         var cts = new CancellationTokenSource();
@@ -78,7 +75,7 @@ public static class CallAnalyzer
         await awaitReady.Task;
 
         //make results more noticable with loop
-        for (int i = 0; i < iterations; i++)
+        for (int i = 0; i < callCount; i++)
             await Task.Run(call);
 
         cts.Cancel();
@@ -122,7 +119,7 @@ public static class CallAnalyzer
         Console.WriteLine($"Starting counting calls for: {targetProtocolName}");
         var cts = new CancellationTokenSource();
         var count = 0;
-        var job = Task.Run(async () => count = await CallAnalyzer.GatherThroughput(call, cts.Token));
+        var job = Task.Run(async () => count = await GatherThroughput(call, cts.Token));
 
         for (var i = 0; i < waitSeconds; i++)
         {
@@ -145,6 +142,7 @@ public static class CallAnalyzer
         CancellationToken cancellationToken,
         int agentCount = 1)
     {
+        //simpler alternative, but i lke what i created
         //return await LaunchThroughputAgent(caller, cancellationToken);
         int i = 0;
         var agents = new Task<int>[agentCount];
@@ -176,5 +174,5 @@ public static class CallAnalyzer
         return i;
     }
 
-   
+
 }

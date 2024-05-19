@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.WebSockets;
 
-namespace GatheringMetrics.Util.Callers;
+namespace GatheringMetrics.Callers;
 
 public class ControlledCall : CallBase, ICaller
 {
@@ -38,19 +38,12 @@ public class ControlledCall : CallBase, ICaller
     public async Task MakeCallOverWsAsync() => await TestCallOverWsAsync(_wsClient);
     public async Task MakeCallOverGrpcAsync() => await TestCallOverGrpcAsync(_grpcClient);
 
-    public async Task CleanUp()
+    public void Dispose()
     {
-        if (_wsClient.State == WebSocketState.Open)
-            await _wsClient.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, default, CancellationToken.None);
         _wsClient.Dispose();
         _http20Client.Dispose();
         _http30Client.Dispose();
         _grpcChannel.Dispose();
         _grpcChannel.Dispose();
-    }
-
-    public async Task EnsureCleanedUp()
-    {
-        await CleanUp();
     }
 }

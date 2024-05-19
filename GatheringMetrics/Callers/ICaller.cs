@@ -1,11 +1,9 @@
-﻿namespace GatheringMetrics.Util.Callers;
+﻿namespace GatheringMetrics.Callers;
 
-public interface ICaller
+public interface ICaller : IDisposable
 {
     public Task MakeCallOverHttp20Async();
     public Task MakeCallOverHttp30Async();
     public Task MakeCallOverWsAsync();
     public Task MakeCallOverGrpcAsync();
-
-    public Task EnsureCleanedUp();
 }

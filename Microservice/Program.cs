@@ -1,11 +1,9 @@
 using Microservice;
 using Microservice.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +42,6 @@ app.MapPost("/grpc", (HelloRequest request) => request.Name);
 
 app.MapPost("/http", async (HttpContext http, [FromBody] string payload) =>
 {
-    //Console.WriteLine(payload);
     await http.Response.WriteAsync($"used {http.Request.Protocol} -> {payload}");
 });
 
@@ -52,10 +49,6 @@ app.MapGet("/ws", async (HttpContext context, CancellationToken cancellationToke
 {
     if (context.WebSockets.IsWebSocketRequest)
     {
-        //WebSocketAcceptContext acceptOptions = new()
-        //{
-        //    DangerousEnableCompression = false,
-        //};
         using var ws = await context.WebSockets.AcceptWebSocketAsync();
         string queryBufferSize = $"{context.Request.Query["bs"]}";
         var bufferSize = queryBufferSize is null ? 1024 : int.Parse(queryBufferSize);
@@ -97,6 +90,6 @@ async Task HandleWebSocketAsync(WebSocket ws, int bufferSize)
                 WebSocketMessageFlags.EndOfMessage,
                 CancellationToken.None);
         }
-        
+
     }
 }
